@@ -33,13 +33,15 @@ const renderModules = mods => `
 <section class="page-section" id="modules">
   <hr class="rule-mascot">
   <div class="module-grid">
-    ${(mods||[]).map((m, i) => `
-      <a class="row" href="https://github.com/AnEntrypoint/wireweave/blob/master/src/${esc(m.slug)}.js">
-        <span class="row-code">${esc(m.code)} / ${esc(m.slug)}</span>
-        <span class="row-title">${esc(m.slug)}</span>
-        <span class="row-meta">${esc(m.meta)}</span>
+    ${(mods||[]).map((m) => `
+      <a class="module-card" href="https://github.com/AnEntrypoint/wireweave/blob/master/src/${esc(m.slug)}.js">
+        <div class="module-head">
+          <span class="row-code">${esc(m.code)}</span>
+          <span class="row-meta">${esc(m.meta)}</span>
+        </div>
+        <div class="module-title">${esc(m.slug)}</div>
+        <div class="module-blurb"><p>${md(m.blurb)}</p></div>
       </a>
-      <div class="module-blurb prose"><p>${md(m.blurb)}</p></div>
     `).join('')}
   </div>
 </section>`;
