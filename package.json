@@ -1,5 +1,5 @@
 {
-  "name": "magicwand",
+  "name": "@anentrypoint/magicwand",
   "version": "0.0.2",
   "description": "nostr + webrtc voice SDK. networking layer for 247420 projects.",
   "type": "module",
