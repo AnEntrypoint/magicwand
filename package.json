@@ -1,0 +1,50 @@
+{
+  "name": "magicwand",
+  "version": "0.0.0",
+  "description": "nostr + webrtc voice SDK. networking layer for 247420 projects.",
+  "type": "module",
+  "main": "./src/index.js",
+  "module": "./src/index.js",
+  "exports": {
+    ".": "./src/index.js",
+    "./relay-pool": "./src/relay-pool.js",
+    "./auth": "./src/auth.js",
+    "./debug": "./src/debug.js"
+  },
+  "files": [
+    "src",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "test": "node test.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/AnEntrypoint/magicwand.git"
+  },
+  "keywords": [
+    "nostr",
+    "webrtc",
+    "voice",
+    "p2p",
+    "serverless",
+    "247420"
+  ],
+  "author": "AnEntrypoint",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/AnEntrypoint/magicwand/issues"
+  },
+  "homepage": "https://github.com/AnEntrypoint/magicwand#readme",
+  "peerDependencies": {
+    "nostr-tools": "^2.7.0"
+  },
+  "devDependencies": {
+    "nostr-tools": "^2.7.0",
+    "ws": "^8.18.0"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}
