@@ -4,6 +4,9 @@
 
 serverless nostr + webrtc voice SDK. the networking layer for 247420 projects.
 
+site: https://anentrypoint.github.io/wireweave/  
+npm: https://www.npmjs.com/package/wireweave
+
 ```
 npm i wireweave
 ```
