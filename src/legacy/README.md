@@ -61,8 +61,8 @@ nostr-pages.js
 ## CDN load (via jsDelivr)
 
 ```html
-<script src="https://cdn.jsdelivr.net/npm/magicwand@latest/src/legacy/nostr-fsm.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/magicwand@latest/src/legacy/nostr-network.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/wireweave@latest/src/legacy/nostr-fsm.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/wireweave@latest/src/legacy/nostr-network.js"></script>
 <!-- etc in order above -->
 ```
 

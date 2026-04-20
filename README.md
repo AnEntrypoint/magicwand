@@ -1,11 +1,11 @@
-# magicwand
+# wireweave
 
 > probably emerging 🌀
 
 nostr + webrtc voice SDK. the networking layer for 247420 projects.
 
 ```
-npm i magicwand
+npm i wireweave
 ```
 
 ## what it is
@@ -26,7 +26,7 @@ SDK-shaping the voice/chat/channels/servers into proper ES modules lands in 0.3+
 ## usage
 
 ```js
-import { RelayPool, NostrAuth } from 'magicwand';
+import { RelayPool, NostrAuth } from 'wireweave';
 import * as NostrTools from 'nostr-tools';
 
 const auth = new NostrAuth({ nostrTools: NostrTools, storage: localStorage });

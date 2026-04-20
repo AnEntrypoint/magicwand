@@ -1,6 +1,6 @@
 {
-  "name": "@lanmower/magicwand",
-  "version": "0.0.4",
+  "name": "wireweave",
+  "version": "0.1.0",
   "description": "nostr + webrtc voice SDK. networking layer for 247420 projects.",
   "type": "module",
   "main": "./src/index.js",
@@ -23,7 +23,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/AnEntrypoint/magicwand.git"
+    "url": "git+https://github.com/AnEntrypoint/wireweave.git"
   },
   "keywords": [
     "nostr",
@@ -36,9 +36,9 @@
   "author": "AnEntrypoint",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/AnEntrypoint/magicwand/issues"
+    "url": "https://github.com/AnEntrypoint/wireweave/issues"
   },
-  "homepage": "https://github.com/AnEntrypoint/magicwand#readme",
+  "homepage": "https://github.com/AnEntrypoint/wireweave#readme",
   "peerDependencies": {
     "nostr-tools": "^2.7.0"
   },

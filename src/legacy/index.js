@@ -18,8 +18,8 @@ export const LEGACY_LOAD_ORDER = [
   'nostr-pages.js'
 ];
 
-export const loadLegacy = async ({ base = 'https://cdn.jsdelivr.net/npm/magicwand@latest/src/legacy/', prereqsReady = () => true } = {}) => {
-  if (!prereqsReady()) throw new Error('magicwand/legacy: prereqs not ready (state, XState, NostrTools must be on window)');
+export const loadLegacy = async ({ base = 'https://cdn.jsdelivr.net/npm/wireweave@latest/src/legacy/', prereqsReady = () => true } = {}) => {
+  if (!prereqsReady()) throw new Error('wireweave/legacy: prereqs not ready (state, XState, NostrTools must be on window)');
   for (const f of LEGACY_LOAD_ORDER) {
     await new Promise((resolve, reject) => {
       const s = document.createElement('script');
