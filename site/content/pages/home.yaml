@@ -1,0 +1,29 @@
+id: home
+title: Home
+hero:
+  heading: "wireweave"
+  subheading: "nostr + WebRTC voice SDK"
+  body: "the voice and signaling layer for 247420 projects. nostr for discovery, WebRTC for the actual audio."
+  badges:
+    - { label: "nostr" }
+    - { label: "webrtc" }
+    - { label: "sdk" }
+    - { label: "voice" }
+  ctas:
+    - { label: "GitHub", href: "https://github.com/AnEntrypoint/wireweave", primary: true }
+    - { label: "Install", href: "https://github.com/AnEntrypoint/wireweave#installation" }
+    - { label: "247420", href: "https://247420.xyz" }
+features:
+  heading: "Why wireweave"
+  items:
+    - { name: "nostr", desc: "flagship trait of wireweave." }
+    - { name: "webrtc", desc: "core capability of wireweave." }
+    - { name: "sdk", desc: "core capability of wireweave." }
+quickstart:
+  heading: Quick start
+  lines:
+    - { kind: "cmt", text: "# install" }
+    - { kind: "cmd", text: "npm i wireweave" }
+    - { kind: "cmt", text: "" }
+    - { kind: "cmt", text: "# source" }
+    - { kind: "cmd", text: "git clone https://github.com/AnEntrypoint/wireweave.git" }

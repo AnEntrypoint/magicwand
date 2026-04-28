@@ -1,156 +1,147 @@
-import { readFile } from 'node:fs/promises';
-import { fileURLToPath } from 'node:url';
-import { dirname, join } from 'node:path';
+// AnEntrypoint design-system theme for flatspace.
+// Renders site chrome via anentrypoint-design SDK on the client (importmap → unpkg),
+// theme.mjs only emits the static HTML shell + bootstrap script that consumes the YAML
+// content that flatspace baked into <script type="application/json" id="__site__">.
 
-const here = dirname(fileURLToPath(import.meta.url));
-const readSite = name => readFile(join(here, name), 'utf8');
+const escapeHtml = (s) => String(s ?? '')
+  .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+  .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
 
-const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
-const md = s => esc(s).replace(/`([^`]+)`/g, '<code>$1</code>');
+const escapeJson = (obj) => JSON.stringify(obj)
+  .replace(/</g, '\\u003c').replace(/>/g, '\\u003e').replace(/&/g, '\\u0026')
+  .replace(/\u2028/g, '\\u2028').replace(/\u2029/g, '\\u2029');
 
-const renderNav = nav => (nav || []).map(n => `<a href="${esc(n.href)}">${esc(n.label)}</a>`).join('');
+const SDK_URL = 'https://unpkg.com/anentrypoint-design/dist/247420.js';
 
-const renderCta = cta => (cta || []).map(b => {
-    const cls = b.kind === 'green' ? 'btn-primary' : 'btn-ghost';
-    return `<a class="${cls}" href="${esc(b.href)}">${esc(b.label)}</a>`;
-}).join(' ');
+const clientScript = `
+import { h, applyDiff, installStyles } from 'anentrypoint-design';
+installStyles();
 
-const accentForIndex = i => ['green', 'purple', 'mascot', 'sun', 'flame', 'sky'][i % 6];
+const data = JSON.parse(document.getElementById('__site__').textContent);
+const { site, nav, home } = data;
+const accent = \`linear-gradient(135deg, \${site.accent_from || '#58a6ff'}, \${site.accent_to || '#bc8cff'})\`;
 
-const renderSection = (s, i) => `
-<section class="ww-section" id="${esc(s.id)}">
-  <div class="dateline">
-    <span class="ww-mark" data-accent="${accentForIndex(i)}">${esc(s.label)}</span>
-    <span class="spread"></span>
-    <span>${esc(s.id)}</span>
-  </div>
-  <h2>${esc(s.title)}</h2>
-  <div class="ww-prose"><p>${md(s.body)}</p></div>
-  ${s.code ? `<pre class="ww-code"><code>${esc(s.code)}</code></pre>` : ''}
-</section>`;
+function Hero() {
+  return h('div', { class: 'hero' },
+    h('h1', { class: 'hero-h1' }, home.hero.heading),
+    home.hero.subheading ? h('p', { class: 'hero-sub' }, home.hero.subheading) : null,
+    home.hero.body ? h('p', { class: 'hero-body' }, home.hero.body) : null,
+    h('div', { class: 'badge-row' },
+      ...(home.hero.badges || []).map((b, i) => h('span', { class: 'badge', key: i }, b.label))
+    ),
+    h('div', { class: 'cta-row' },
+      ...(home.hero.ctas || []).map((c, i) => h('a', {
+        href: c.href, key: i,
+        class: 'btn btn-sm ' + (c.primary ? 'btn-primary' : 'btn-ghost'),
+        style: 'text-decoration:none'
+      }, c.label))
+    )
+  );
+}
 
-const renderModules = mods => `
-<section class="ww-section" id="modules">
-  <div class="dateline"><span>// modules</span><span class="spread"></span><span>${(mods || []).length} files</span></div>
-  <div class="ww-rows">
-    ${(mods || []).map(m => `
-      <a class="row" href="https://github.com/AnEntrypoint/wireweave/blob/master/src/${esc(m.slug)}.js">
-        <div class="row-code">// ${esc(m.code)}</div>
-        <div class="row-title">${esc(m.slug)}<div class="ww-blurb">${md(m.blurb)}</div></div>
-        <div class="row-meta">${esc(m.meta)}</div>
-      </a>
-    `).join('')}
-  </div>
-</section>`;
+function Features() {
+  if (!home.features || !home.features.items) return null;
+  return h('section', { class: 'section' },
+    h('h2', {}, home.features.heading || 'Features'),
+    h('div', { class: 'grid-cards' },
+      ...home.features.items.map((it, i) =>
+        h('div', { class: 'card', key: i },
+          h('h3', {}, it.name),
+          h('p', {}, it.desc || '')
+        )
+      )
+    )
+  );
+}
 
-const layout = ({ header, footer, page, siteCss }) => `<!doctype html>
-<html lang="en">
+function Quickstart() {
+  if (!home.quickstart || !home.quickstart.lines) return null;
+  const cls = { cmt: 'cmt', cmd: '', str: 'str', kw: 'kw', fn: 'fn' };
+  return h('section', { class: 'section' },
+    h('h2', {}, home.quickstart.heading || 'Quick start'),
+    h('div', { class: 'code-block' },
+      h('pre', {},
+        ...home.quickstart.lines.map((l, i) => {
+          const c = cls[l.kind] || '';
+          return h('span', { key: i, class: c }, l.text + '\n');
+        })
+      )
+    )
+  );
+}
+
+function Footer() {
+  return h('footer', { class: 'app-footer' },
+    h('span', {}, 'styled with '),
+    h('a', { href: 'https://github.com/AnEntrypoint/design' }, 'anentrypoint-design'),
+    h('span', {}, ' · part of '),
+    h('a', { href: 'https://247420.xyz' }, '247420.xyz'),
+    h('span', {}, ' · '),
+    h('a', { href: site.repo }, 'source')
+  );
+}
+
+function App() {
+  return h('div', {}, Hero(), Features(), Quickstart(), Footer());
+}
+
+applyDiff(document.getElementById('app'), [App()]);
+`;
+
+const html = ({ site, nav, home }) => `<!DOCTYPE html>
+<html lang="en" class="ds-247420">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="theme-color" content="#247420" media="(prefers-color-scheme: light)">
-<meta name="theme-color" content="#3A9A34" media="(prefers-color-scheme: dark)">
-<meta name="color-scheme" content="light dark">
-<title>${esc(page.title)} — ${esc(header.tagline)}</title>
-<meta name="description" content="${esc(page.hero.lede)}">
-<meta property="og:title" content="${esc(page.title)} — ${esc(header.tagline)}">
-<meta property="og:description" content="${esc(page.hero.lede)}">
-<meta property="og:url" content="https://anentrypoint.github.io/wireweave/">
-<meta property="og:type" content="website">
-<link rel="canonical" href="https://anentrypoint.github.io/wireweave/">
-<link rel="icon" type="image/svg+xml" href="favicon.svg">
-<link rel="stylesheet" href="colors_and_type.css">
-<link rel="stylesheet" href="app-shell.css">
-<style>${siteCss}</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>${escapeHtml(site.title)}${site.tagline ? ' — ' + escapeHtml(site.tagline) : ''}</title>
+  <meta name="description" content="${escapeHtml(site.description || site.tagline || site.title)}" />
+  <meta property="og:title" content="${escapeHtml(site.title)}" />
+  <meta property="og:description" content="${escapeHtml(site.description || site.tagline || '')}" />
+  <meta property="og:url" content="${escapeHtml(site.url || '')}" />
+  <link rel="canonical" href="${escapeHtml(site.url || '')}" />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ctext y='26' font-size='26'%3E${encodeURIComponent(site.glyph || '◆')}%3C/text%3E%3C/svg%3E" />
+  <script type="importmap">{"imports":{"anentrypoint-design":"${SDK_URL}"}}</script>
+  <style>
+    body { margin: 0; }
+    .hero { padding: 5rem 2rem 3rem; text-align: center; background: linear-gradient(135deg, var(--panel-bg, #0d1117) 0%, var(--panel-bg-2, #161b22) 100%); border-bottom: 1px solid var(--panel-border, #30363d); }
+    .hero-h1 { font-size: 4rem; font-weight: 800; margin: 0 0 1rem; letter-spacing: -2px; background: ${'linear-gradient(135deg, ' + (site.accent_from || '#58a6ff') + ', ' + (site.accent_to || '#bc8cff') + ')'}; -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    .hero-sub { font-size: 1.25rem; color: var(--panel-muted, #8b949e); max-width: 640px; margin: 0 auto 0.75rem; line-height: 1.6; }
+    .hero-body { font-size: 1rem; color: var(--panel-muted, #8b949e); max-width: 640px; margin: 0 auto 2rem; line-height: 1.6; }
+    .badge-row { display: flex; gap: 0.5rem; justify-content: center; flex-wrap: wrap; margin-bottom: 2rem; }
+    .badge { background: var(--panel-bg-2, #21262d); border: 1px solid var(--panel-border, #30363d); border-radius: 9999px; padding: 0.25rem 0.75rem; font-size: 0.75rem; color: var(--panel-muted, #8b949e); }
+    .cta-row { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
+    .section { max-width: 1100px; margin: 0 auto; padding: 3rem 2rem; }
+    .section h2 { font-size: 1.75rem; font-weight: 700; color: var(--panel-text, #e6edf3); margin-bottom: 1.5rem; border-bottom: 1px solid var(--panel-border, #21262d); padding-bottom: 0.75rem; }
+    .grid-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 1rem; }
+    .card { background: var(--panel-bg-2, #161b22); border: 1px solid var(--panel-border, #30363d); border-radius: 12px; padding: 1.25rem; }
+    .card h3 { margin: 0 0 0.5rem; font-size: 1rem; color: ${site.accent_to || '#bc8cff'}; font-family: var(--ff-mono, ui-monospace, monospace); }
+    .card p { margin: 0; color: var(--panel-muted, #8b949e); font-size: 0.85rem; line-height: 1.5; }
+    .code-block { background: var(--panel-bg-2, #161b22); border: 1px solid var(--panel-border, #30363d); border-radius: 12px; padding: 1.5rem; overflow-x: auto; }
+    .code-block pre { margin: 0; font-family: var(--ff-mono, ui-monospace, monospace); font-size: 0.85rem; color: var(--panel-text, #e6edf3); line-height: 1.6; }
+    .cmt { color: var(--panel-muted, #8b949e); }
+    .str { color: #a5d6ff; } .kw { color: #ff7b72; } .fn { color: #d2a8ff; }
+    .app-footer { border-top: 1px solid var(--panel-border, #21262d); padding: 2rem; text-align: center; color: var(--panel-muted, #8b949e); font-size: 0.85rem; }
+    .app-footer a { color: #58a6ff; text-decoration: none; }
+  </style>
 </head>
 <body>
-<header class="app-topbar">
-  <span class="brand">${esc(header.brand)}<span class="slash"> / </span>${esc(header.tagline.split('.')[0])}</span>
-  <nav>${renderNav(header.nav)}</nav>
-</header>
-
-<main class="ww-page">
-  <section class="ww-hero">
-    <div class="dateline"><span>247420 // wireweave</span><span class="spread"></span><span>probably emerging 🌀</span></div>
-    <span class="stamp green">${esc(page.hero.stamp)}</span>
-    <h1>${esc(page.hero.headline)}</h1>
-    <p class="ww-lede">${esc(page.hero.lede)}</p>
-    <div class="ww-cta">${renderCta(page.hero.cta)}</div>
-  </section>
-
-  ${(page.sections || []).map(renderSection).join('')}
-  ${renderModules(page.modules)}
-</main>
-
-<footer class="app-status">
-  <span class="item">${esc(footer.left)}</span>
-  ${(footer.links || []).map(l => `<a class="item" href="${esc(l.href)}">${esc(l.label)}</a>`).join('')}
-  <span class="spread"></span>
-  <span class="item">${esc(footer.right)}</span>
-  <span class="item">• probably emerging</span>
-</footer>
+  <div id="app"></div>
+  <script type="application/json" id="__site__">${escapeJson({ site, nav, home })}</script>
+  <script type="module">${clientScript}</script>
 </body>
-</html>`;
-
-const SITE_CSS = `
-.ww-page { max-width: 1100px; margin: 0 auto; padding: var(--space-7) var(--space-5); display: flex; flex-direction: column; gap: var(--space-7); }
-.ww-hero { display: flex; flex-direction: column; gap: var(--space-4); padding: var(--space-7) 0 var(--space-5); }
-.ww-hero .stamp { align-self: flex-start; }
-.ww-hero h1 { font-family: var(--ff-display); font-size: clamp(48px, 10vw, var(--fs-hero)); line-height: var(--lh-tight); letter-spacing: var(--tr-tight); margin: 0; max-width: 14ch; }
-.ww-lede { font-family: var(--ff-prose); font-size: var(--fs-lg); line-height: var(--lh-long); max-width: 60ch; color: var(--panel-text-2); margin: 0; }
-.ww-cta { display: flex; gap: var(--space-3); flex-wrap: wrap; margin-top: var(--space-3); }
-
-.ww-section { display: flex; flex-direction: column; gap: var(--space-4); }
-.ww-section h2 { font-family: var(--ff-display); font-size: var(--fs-h1); line-height: var(--lh-tight); letter-spacing: var(--tr-tight); margin: 0; max-width: 18ch; }
-.ww-prose p { font-family: var(--ff-prose); font-size: var(--fs-lg); line-height: var(--lh-long); max-width: 60ch; color: var(--panel-text-2); margin: 0; }
-.ww-prose code { font-family: var(--ff-mono); font-size: 0.95em; background: var(--panel-2); padding: 0 4px; border-radius: var(--r-2); }
-
-.ww-mark[data-accent="green"]   { color: var(--green); }
-.ww-mark[data-accent="purple"]  { color: var(--purple-2); }
-.ww-mark[data-accent="mascot"]  { color: var(--mascot); }
-.ww-mark[data-accent="sun"]     { color: var(--sun); }
-.ww-mark[data-accent="flame"]   { color: var(--flame); }
-.ww-mark[data-accent="sky"]     { color: var(--sky); }
-
-.ww-code { font-family: var(--ff-mono); font-size: var(--fs-sm); line-height: var(--lh-base); background: var(--panel-1); border-radius: var(--r-3); padding: var(--space-4); overflow-x: auto; white-space: pre; color: var(--panel-text); }
-.ww-code code { background: transparent; padding: 0; }
-
-.ww-rows { display: flex; flex-direction: column; gap: var(--space-2); }
-.ww-rows .row { text-decoration: none; color: inherit; }
-.ww-blurb { font-family: var(--ff-prose); font-size: var(--fs-sm); font-weight: 400; letter-spacing: 0; color: var(--panel-text-2); margin-top: var(--space-2); max-width: 60ch; }
-.ww-rows .row:hover .ww-blurb { color: var(--green-fg); }
-
-.app-status .item { font-family: var(--ff-mono); font-size: var(--fs-xs); text-transform: uppercase; letter-spacing: var(--tr-label); color: var(--panel-text-2); text-decoration: none; padding: 0 var(--space-3); }
-.app-status a.item:hover { color: var(--panel-accent); }
-
-@media (max-width: 640px) {
-  .ww-page { padding: var(--space-5) var(--space-3); }
-  .ww-section h2 { font-size: var(--fs-h2); }
-  .row { grid-template-columns: 64px 1fr; }
-  .row .row-meta { grid-column: 2; }
-}
+</html>
 `;
 
 export default {
-    render: async (ctx) => {
-        const header = ctx.readGlobal('header');
-        const footer = ctx.readGlobal('footer');
-        const { docs } = ctx.read('pages', { where: { slug: { equals: 'home' } }, limit: 1 });
-        const page = docs[0];
-        if (!page) throw new Error('content/pages/home.yaml not found');
+  render: async (ctx) => {
+    const site = ctx.readGlobal('site') || {};
+    const nav = ctx.readGlobal('navigation') || { links: [] };
+    const homeDoc = ctx.read('pages').docs.find(p => p.id === 'home');
+    if (!homeDoc) throw new Error('config/pages/home.yaml missing or has no id: home');
 
-        const [tokensCss, shellCss, favicon] = await Promise.all([
-            readSite('colors_and_type.css'),
-            readSite('app-shell.css'),
-            readSite('favicon.svg')
-        ]);
-
-        return [
-            { path: 'index.html', html: layout({ header, footer, page, siteCss: SITE_CSS }) },
-            { path: 'colors_and_type.css', html: tokensCss },
-            { path: 'app-shell.css', html: shellCss },
-            { path: 'favicon.svg', html: favicon },
-            { path: '.nojekyll', html: '' }
-        ];
-    }
+    return [{
+      path: 'index.html',
+      html: html({ site, nav, home: homeDoc })
+    }];
+  }
 };

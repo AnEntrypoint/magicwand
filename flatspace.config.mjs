@@ -1,5 +1,5 @@
 export default {
-    outDir: 'docs',
-    contentDir: 'content',
-    theme: './site/theme.mjs'
+  outDir: 'dist',
+  contentDir: 'site/content',
+  theme: './site/theme.mjs',
 };

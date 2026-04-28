@@ -27,3 +27,6 @@ package-lock.json
 .codeinsight
 *.stackdump
 rs-learn.db
+dist/
+.gm/
+.codeinsight/

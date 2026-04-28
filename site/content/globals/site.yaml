@@ -1,0 +1,17 @@
+title: "wireweave"
+tagline: "nostr + WebRTC voice SDK"
+description: "the voice and signaling layer for 247420 projects. nostr for discovery, WebRTC for the actual audio."
+repo: "https://github.com/AnEntrypoint/wireweave"
+url: "https://anentrypoint.github.io/wireweave"
+year: 2026
+keywords:
+  - "nostr"
+  - "webrtc"
+  - "sdk"
+  - "247420"
+  - "anentrypoint"
+accent_from: "#f97583"
+accent_to: "#ffa657"
+glyph: "⌇"
+code: "031"
+category: "voice"
