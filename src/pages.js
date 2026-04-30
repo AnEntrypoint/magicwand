@@ -1,7 +1,17 @@
+const stripTags = (html) => html
+  .replace(/<\s*(script|iframe|object|embed|form|input|button)\b[^>]*>[\s\S]*?<\s*\/\s*\1\s*>/gi, '')
+  .replace(/<\s*(script|iframe|object|embed|form|input|button)\b[^>]*\/?\s*>/gi, '')
+  .replace(/\son[a-z]+\s*=\s*"[^"]*"/gi, '')
+  .replace(/\son[a-z]+\s*=\s*'[^']*'/gi, '')
+  .replace(/\son[a-z]+\s*=\s*[^\s>]+/gi, '')
+  .replace(/(href|src)\s*=\s*"\s*javascript:[^"]*"/gi, '$1="#"')
+  .replace(/(href|src)\s*=\s*'\s*javascript:[^']*'/gi, "$1='#'");
+
 const sanitize = (html) => {
-  if (typeof document === 'undefined') return html;
+  const stripped = stripTags(html);
+  if (typeof document === 'undefined') return stripped;
   const el = document.createElement('div');
-  el.innerHTML = html;
+  el.innerHTML = stripped;
   el.querySelectorAll('script,iframe,object,embed,form,input,button').forEach(n => n.remove());
   el.querySelectorAll('*').forEach(n => {
     [...n.attributes].forEach(a => {

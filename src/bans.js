@@ -55,13 +55,16 @@ export class Bans extends EventTarget {
     if (!creator) return;
     this.sub = 'bans-' + serverId;
     this.pool.subscribe(this.sub,
-      [{ kinds: [30078], authors: [creator], '#d': ['zellous-ban:' + serverId, 'zellous-timeout:' + serverId] }],
+      [{ kinds: [30078], authors: [creator], '#server': [serverId] }],
       (event) => {
         if (event.pubkey !== creator) return;
         try {
           const dTag = event.tags.find(t => t[0] === 'd');
           if (!dTag?.[1]) return;
-          const [prefix, , pubkey] = dTag[1].split(':');
+          const parts = dTag[1].split(':');
+          const prefix = parts[0];
+          const pubkey = parts[parts.length - 1];
+          if (prefix !== 'zellous-ban' && prefix !== 'zellous-timeout') return;
           const data = this.store.get(serverId) || { banned: [], timeouts: {} };
           if (prefix === 'zellous-ban' && pubkey && !data.banned.includes(pubkey)) data.banned.push(pubkey);
           else if (prefix === 'zellous-timeout' && pubkey) {
