@@ -37,7 +37,10 @@ async function testRelay() {
   const marker = 'magicwand-test-' + Math.random().toString(36).slice(2);
   pool.connect();
   await Promise.race([
-    new Promise(r => pool.addEventListener('relay-status', e => { if (e.detail.status === 'connected') r(); }, { once: true })),
+    new Promise(r => {
+      const handler = (e) => { if (e.detail.status === 'connected') { pool.removeEventListener('relay-status', handler); r(); } };
+      pool.addEventListener('relay-status', handler);
+    }),
     timed(TIMEOUT, 'connect')
   ]);
   assert.ok(pool.isConnected());
