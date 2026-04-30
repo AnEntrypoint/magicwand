@@ -24,6 +24,7 @@ export const createWireweave = ({
 } = {}) => {
   if (!nostrTools) throw new Error('wireweave: nostrTools required');
   if (!xstate) throw new Error('wireweave: xstate required');
+  if (!storage) throw new Error('wireweave: storage required (no localStorage in this env — pass a {getItem,setItem,removeItem} adapter)');
 
   const fsm = createFSM(xstate);
   const pool = createRelayPool({ relays, verifyEvent: nostrTools.verifyEvent, WebSocketImpl });

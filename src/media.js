@@ -94,8 +94,8 @@ export class Media {
 
   isMedia(url) {
     if (typeof url !== 'string') return null;
-    if (/\.(png|jpe?g|gif|webp|svg|avif)(\?|$)/i.test(url)) return 'image';
-    if (/\.(mp4|webm|mov|ogg)(\?|$)/i.test(url)) return 'video';
+    if (/\.(png|jpe?g|gif|webp|svg|avif|heic|heif|tiff?|bmp)(\?|$)/i.test(url)) return 'image';
+    if (/\.(mp4|webm|mov|ogg|ogv|mkv|m4v|avi)(\?|$)/i.test(url)) return 'video';
     return null;
   }
 

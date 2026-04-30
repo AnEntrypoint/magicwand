@@ -3,7 +3,7 @@ import WebSocket from 'ws';
 import * as NostrTools from 'nostr-tools';
 import { RelayPool, NostrAuth, createDataSession, createFSM, DM } from './src/index.js';
 
-const RELAY = 'wss://relay.damus.io';
+const RELAYS = ['wss://relay.damus.io', 'wss://nos.lol', 'wss://relay.primal.net', 'wss://relay.nostr.band'];
 const TIMEOUT = 15000;
 
 const timed = (ms, label) => new Promise((_, rej) =>
@@ -31,7 +31,7 @@ async function testAuth() {
 }
 
 async function testRelay() {
-  const pool = new RelayPool({ relays: [RELAY], verifyEvent: NostrTools.verifyEvent, WebSocketImpl: WebSocket });
+  const pool = new RelayPool({ relays: RELAYS, verifyEvent: NostrTools.verifyEvent, WebSocketImpl: WebSocket });
   const auth = new NostrAuth({ nostrTools: NostrTools });
   auth.generateKey();
   const marker = 'magicwand-test-' + Math.random().toString(36).slice(2);
