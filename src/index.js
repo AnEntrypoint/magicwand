@@ -11,6 +11,7 @@ export { Bans, createBans } from './bans.js';
 export { Roles, createRoles } from './roles.js';
 export { Settings, createSettings } from './settings.js';
 export { Media, createMedia } from './media.js';
+export { DM, createDM } from './dm.js';
 export { Pages, createPages } from './pages.js';
 export { createWireweave } from './wireweave.js';
 export * as debug from './debug.js';

@@ -1,7 +1,7 @@
 import assert from 'node:assert';
 import WebSocket from 'ws';
 import * as NostrTools from 'nostr-tools';
-import { RelayPool, NostrAuth, createDataSession, createFSM } from './src/index.js';
+import { RelayPool, NostrAuth, createDataSession, createFSM, DM } from './src/index.js';
 
 const RELAY = 'wss://relay.damus.io';
 const TIMEOUT = 15000;
@@ -80,10 +80,24 @@ async function testDataSession() {
   console.log('  data: shape pass');
 }
 
+async function testDM() {
+  const a = new NostrAuth({ nostrTools: NostrTools }); a.generateKey();
+  const b = new NostrAuth({ nostrTools: NostrTools }); b.generateKey();
+  const pool = { publish: () => true, subscribe: () => 'x', unsubscribe: () => {} };
+  const dmA = new DM({ relayPool: pool, auth: a, nostrTools: NostrTools });
+  const dmB = new DM({ relayPool: pool, auth: b, nostrTools: NostrTools });
+  const signed = await dmA.send(b.pubkey, 'magicwand-dm');
+  assert.strictEqual(signed.kind, 14);
+  assert.strictEqual(dmB.decrypt(signed), 'magicwand-dm');
+  assert.strictEqual(dmA.decrypt(signed), 'magicwand-dm');
+  console.log('  dm: nip44 round-trip pass');
+}
+
 async function main() {
   console.log('magicwand test.js');
   await testAuth();
   await testDataSession();
+  await testDM();
   await testRelay();
   console.log('all pass');
 }
