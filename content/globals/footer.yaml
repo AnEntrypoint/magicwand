@@ -1,9 +1,0 @@
-left: "247420 / wireweave"
-right: "MIT — AnEntrypoint"
-links:
-  - label: npm
-    href: "https://www.npmjs.com/package/wireweave"
-  - label: repo
-    href: "https://github.com/AnEntrypoint/wireweave"
-  - label: zellous
-    href: "https://anentrypoint.github.io/zellous/"
